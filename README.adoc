@@ -30,7 +30,7 @@
 NOTE: This repository contains the guide documentation source. To view
 the guide in published form, view it on the https://kabanero.io/guides/ website.
 
-Learn about the common Appsody CLI commands that you'll use to develop applications
+Learn about the common Appsody CLI commands that you'll use to develop applications.
 
 // =================================================================================================
 // What you'll learn
@@ -39,10 +39,9 @@ Learn about the common Appsody CLI commands that you'll use to develop applicati
 
 == What you’ll learn
 
-You will learn how to develop your own Appsody projects using the
-Appsody Command Line Interface (CLI). This will include how to discover
-the Appsody repositories that are available, how to add a new repository,
-and how to display the stacks available within these repositories.
+You will learn how to use the Appsody Command Line Interface (CLI) to  configure your local
+development environment to access a Kabanero Collection. You will then learn how to use the CLI
+to create, run, test, and deploy an application built from a Kabanero stack.
 
 // =================================================================================================
 // Prerequisites
@@ -54,12 +53,14 @@ and how to display the stacks available within these repositories.
 . link:https://appsody.dev/docs/getting-started/installation[Appsody] must be installed.
 
 // =================================================================================================
-// Discover the Appsody repositories and stacks
+// Discovering Appsody repositories and stacks
 // =================================================================================================
 
-== Discover the Appsody repositories and stacks
+== Discovering Appsody repositories and stacks
 
-When you install Appsody it contains a reference to a public repository `appsodyhub`, in which you can see the available
+**CLI command:** `appsody repo list`
+
+When you install Appsody, the default configuration references a public repository `appsodyhub`, in which you can see the available
 Appsody stacks. You can use the content in the public repository, or you can specify a different repository. This
 repository might be one that you create, based on your own requirements. Alternatively, the repository might be a
 preconfigured Kabanero Collection that someone in your organisation, such as an enterprise architect, has created for you.
@@ -74,22 +75,25 @@ NAME            URL
 experimental    https://github.com/appsody/stacks/releases/latest/download/experimental-index.yaml
 ----
 
-=== Adding your own Appsody repository
+=== Adding a Kabanero repository
+
+**CLI command:** `appsody repo add <repo-name> <URL>`
 
 As a developer your enterprise architect might provide you with the URL of a repository that your organisation
 has defined for developers to use. A repository is defined by an `index.yaml` file, which lists all the stacks
 that are available.
 
-To add this repository, use the `appsody repo add <repo-name> <URL>` command, supplying a name for the
-repository and the URL for the repository. The URL must point to the `index.yaml` file for your repository.
-The following example adds the latest public Kabanero Collections repository:
+To add a repository, use the `appsody repo add <repo-name> <URL>` command, supplying a name for the
+repository and the URL for the repository. The URL must point to the repository `index.yaml` file.
+
+Run the following command to add the latest public Kabanero Collections repository:
 
 ```
 appsody repo add kabanero https://github.com/kabanero-io/collections/releases/latest/download/kabanero-index.yaml
 ```
 
-When you've added your repository, check that it's been added successfully by running the `appsody repo list` command
-again. The output should be similar to the following sample:
+Check that the repository changes are added successfully by running the `appsody repo list` command
+again. The output should be similar to the following example:
 
 [source,bash]
 ----
@@ -99,13 +103,17 @@ experimental  https://github.com/appsody/stacks/releases/latest/download/experim
 kabanero      https://github.com/kabanero-io/collections/releases/latest/download/kabanero-index.yaml
 ----
 
-You can change the default repository by using the `appsody repo set-default <name>` command.
+=== Setting your default repository
 
-For example, to set the `kabanero` repository as your default repository, use the following command:
+**CLI command:** `appsody repo set-default <repo-name>`
+
+You can change the default repository by using the `appsody repo set-default <repo-name>` command.
+
+Set the `kabanero` repository as your default repository by using the following command:
 
 `appsody repo set-default kabanero`
 
-Run `appsody repo list` again to see that `kabanero` is now the default repository:
+Run `appsody repo list` again to check that `kabanero` is now the default repository:
 
 [source,bash]
 ----
@@ -115,17 +123,21 @@ appsodyhub      https://github.com/appsody/stacks/releases/latest/download/incub
 experimental    https://github.com/appsody/stacks/releases/latest/download/experimental-index.yaml
 ----
 
+The asterisk indicates that `kabanero` is now the default repository.
+
 === Viewing the available stacks
 
+**CLI command:** `appsody list <repo-name>`
+
 Now that you have set up your repositories you can view the available stacks with the `appsody list` command. To limit the
-output to only one repository, specify the repository name. For example, to limit the list of available stacks to the
-`kabanero` repository, run:
+output to only one repository, specify the repository name. Run the following command to limit the list of available stacks
+to the `kabanero` repository:
 
 ```
 appsody list kabanero
 ```
 
-The output is similar to the following sample, which provides detailed information for each stack:
+The output is similar to the following example, which provides detailed information for each stack:
 
 [source,bash]
 ----
@@ -136,3 +148,94 @@ kabanero      nodejs                   0.2.5      *simple             Runtime fo
 kabanero      nodejs-express           0.2.5      *simple, skaffold   Express web framework for Node.js
 kabanero      nodejs-loopback          0.1.4      *scaffold           LoopBack 4 API Framework for Node.js
 ----
+
+In the output you can see multiple stacks (IDs) in the `kabanero` repository. Each stack includes a version number,
+one or more templates (the asterisk (*****) indicates the default template), and a description.
+
+// =================================================================================================
+// Creating an Appsody application
+// =================================================================================================
+
+
+== Creating an Appsody application
+
+**CLI command:** `appsody init <repo-name>/<stack> <template>`
+
+An Appsody project gives you a containerized development environment that runs with the technology stack of your choice.
+
+Before you create an Appsody project, create a directory to contain the application:
+
+```
+mkdir my-project
+cd my-project
+```
+
+Then you can run the `appsody init` command to set up your project, which downloads the template for your
+chosen stack. Because you already set `kabanero` as your default repository in the last section, run the following command
+to create a Kabanero `nodejs-express` project with the default (`simple`) template:
+
+```
+appsody init nodejs-express
+```
+
+When the initialization completes you should see the following output:
+
+[source,bash]
+---
+...
+Successfully initialized Appsody project
+---
+
+// =================================================================================================
+// Running an Appsody application
+// =================================================================================================
+
+== Running an Appsody application
+
+**CLI command:** `appsody run`
+
+This command runs an Appsody project in a docker container, where the container is linked to the project
+source code on the local system. In the previous step, you initialized the `nodejs-express` stack, which created
+a project directory that contains a sample `app.js` application. Run the application now by typing the `appsody run` command.
+
+Navigate to `http://localhost:3000` to see the output.
+
+**Note:** The URL can be different, depending on the stack, so consult the stack documentation.
+
+Now try editing `app.js` so that it outputs something other than "Hello from Appsody!". When you save the file,
+Appsody picks up the change and automatically updates the container. Refresh `http://localhost:3000` to see the new message.
+
+
+// =================================================================================================
+// Checking the status of your Appsody container
+// =================================================================================================
+
+=== Checking the status of your Appsody container
+
+**CLI command:** `appsody ps`
+
+To list all the stack-based containers that are running in your local Docker environment, use the `appsody ps` command.
+The output provides information about the container ID, name, image, and the status of each container.
+
+Run the `appsody ps` command to see output that is similar to the following example:
+
+[source,bash]
+---
+CONTAINER ID	NAME            IMAGE                     	STATUS
+f20ec098a612	my-project-dev	appsody/nodejs-express:0.2	Up 8 minutes
+---
+
+
+// =================================================================================================
+// Stopping your Appsody container
+// =================================================================================================
+
+=== Stopping your Appsody container
+
+**CLI command:** `appsody stop --name <container-name>`
+
+To stop a container you can either, press `Ctrl-C` in the terminal or use the `appsody stop` command, which
+stops the container that is running in your current working directory.
+
+If you have more than one development project open, use the `appsody stop --name <container-name>` to stop a specific container.
+Use the `appsody ps` command to find the name of the container you want to stop.
