@@ -19,7 +19,7 @@
 :page-description: Learn about the common Appsody CLI commands that you'll use to develop applications
 :guide-author: Kabanero
 :page-tags: ['appsody', 'CLI']
-:page-guide-category: developer
+:page-guide-category: basic
 :page-essential: true
 :page-essential-order: 1
 :page-permalink: /guides/use-appsody-cli/
