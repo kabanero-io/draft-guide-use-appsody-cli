@@ -30,7 +30,7 @@
 NOTE: This repository contains the guide documentation source. To view
 the guide in published form, view it on the https://kabanero.io/guides/ website.
 
-Learn about the common Appsody CLI commands that you'll use to develop applications.
+Learn about the common Appsody CLI commands that you'll use to develop applications in the context of Kabanero and Kabanero CollectionHub.
 
 // =================================================================================================
 // What you'll learn
@@ -41,7 +41,7 @@ Learn about the common Appsody CLI commands that you'll use to develop applicati
 
 You will learn how to use the Appsody Command Line Interface (CLI) to  configure your local
 development environment to access a Kabanero Collection. You will then learn how to use the CLI
-to create, run, test, and deploy an application built from a Kabanero stack.
+to create, run, test, and deploy an application built from a Kabanero Collection.
 
 // =================================================================================================
 // Prerequisites
@@ -58,12 +58,13 @@ to create, run, test, and deploy an application built from a Kabanero stack.
 
 == Discovering Appsody repositories and stacks
 
+Appsody is an intergal component of Kabanero, its designed to enable applications to be built and tested inside a docker container, which then can be deployed by Kabanero into a target host environment.  
+
 **CLI command:** `appsody repo list`
 
-When you install Appsody, the default configuration references a public repository `appsodyhub`, in which you can see the available
-Appsody stacks. You can use the content in the public repository, or you can specify a different repository. This
+When you install Appsody, the default configuration references a public repository `appsodyhub`, in which you can see the available Appsody stacks. You can use the content in the public repository, but those stacks are not integrated with Kabanero. In order to use Appsody with Kabanero you need to add your Kabanero `collectionHub` to Appsody to be used. This
 repository might be one that you create, based on your own requirements. Alternatively, the repository might be a
-preconfigured Kabanero Collection that someone in your organisation, such as an enterprise architect, has created for you.
+preconfigured Kabanero Collection that someone in your organisation, such as an enterprise architect, has created for you. In either case the collectionHub must be active in the Kabanero instance that you wish to deploy your application on,  and it must be added to Appsody for your application creation.
 
 To see the list of configured Appsody repositories, run the `appsody repo list` command. The asterisk shown in the
 output indicates the default repository.
@@ -75,18 +76,18 @@ NAME            URL
 experimental    https://github.com/appsody/stacks/releases/latest/download/experimental-index.yaml
 ----
 
-=== Adding a Kabanero repository
+=== Adding a Kabanero collection hub
 
 **CLI command:** `appsody repo add <repo-name> <URL>`
 
-As a developer your enterprise architect might provide you with the URL of a repository that your organisation
-has defined for developers to use. A repository is defined by an `index.yaml` file, which lists all the stacks
+As a developer your enterprise architect might provide you with the URL of a collection hub that your organisation
+has defined for developers to use. A collection hub is defined by an `index.yaml` file, which lists all the collections
 that are available.
 
-To add a repository, use the `appsody repo add <repo-name> <URL>` command, supplying a name for the
-repository and the URL for the repository. The URL must point to the repository `index.yaml` file.
+To add a collection hub, use the `appsody repo add <repo-name> <URL>` command, supplying a name for the
+repository and the URL for the collection hub. The URL must point to the collection hub's `index.yaml` file.
 
-Run the following command to add the latest public Kabanero Collections repository:
+Run the following command to add the latest public Kabanero Collections repository (it is recommended that the installer of the Kabanero runtime, make a copy of the collection hub and provide that to you, so that you are not suprised when the public collection hub changes)
 
 ```
 appsody repo add kabanero https://github.com/kabanero-io/collections/releases/latest/download/kabanero-index.yaml
@@ -109,7 +110,7 @@ kabanero      https://github.com/kabanero-io/collections/releases/latest/downloa
 
 You can change the default repository by using the `appsody repo set-default <repo-name>` command.
 
-Set the `kabanero` repository as your default repository by using the following command:
+Set the `kabanero` collection hubb as your default repository by using the following command:
 
 `appsody repo set-default kabanero`
 
@@ -149,7 +150,7 @@ kabanero      nodejs-express           0.2.5      *simple, skaffold   Express we
 kabanero      nodejs-loopback          0.1.4      *scaffold           LoopBack 4 API Framework for Node.js
 ----
 
-In the output you can see multiple stacks (IDs) in the `kabanero` repository. Each stack includes a version number,
+In the output you can see multiple stacks (IDs) in the `kabanero` collection hub. Each collection includes a version number,
 one or more templates (the asterisk (*****) indicates the default template), and a description.
 
 // =================================================================================================
@@ -157,7 +158,7 @@ one or more templates (the asterisk (*****) indicates the default template), and
 // =================================================================================================
 
 
-== Creating an Appsody application
+== Creating an Appsody/Kabanero application
 
 **CLI command:** `appsody init <repo-name>/<stack> <template>`
 
@@ -195,12 +196,12 @@ Successfully initialized Appsody project
 **CLI command:** `appsody run`
 
 This command runs an Appsody project in a docker container, where the container is linked to the project
-source code on the local system. In the previous step, you initialized the `nodejs-express` stack, which created
+source code on the local system. In the previous step, you initialized the `nodejs-express` collection, which created
 a project directory that contains a sample `app.js` application. Run the application now by typing the `appsody run` command.
 
 Navigate to `http://localhost:3000` to see the output.
 
-**Note:** The URL can be different, depending on the stack, so consult the stack documentation.
+**Note:** The URL can be different, depending on the collection, so consult the collection's documentation.
 
 Now try editing `app.js` so that it outputs something other than "Hello from Appsody!". When you save the file,
 Appsody picks up the change and automatically updates the container. Refresh `http://localhost:3000` to see the new message.
