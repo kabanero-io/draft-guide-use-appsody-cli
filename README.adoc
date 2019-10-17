@@ -1,3 +1,17 @@
+---
+permalink: /guides/use-appsody-cli
+---
+
+:page-layout: guide
+:projectid: use-appsody-cli
+:page-duration: 20 minutes
+:page-releasedate: 2019-10-18
+:page-description: Learn about the common Appsody CLI commands that you'll use to develop applications
+:page-tags: ['Appsody', 'CLI']
+:page-guide-category: basic
+
+= Developing with the Appsody CLI
+
 //	Copyright 2019 IBM Corporation and others.
 //
 //	Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,25 +26,12 @@
 //	See the License for the specific language governing permissions and
 //	limitations under the License.
 //
-:page-layout: guide
-:projectid: use-appsody-cli
-:page-duration: 15 minutes
-:page-releasedate: 2019-09-24
-:page-description: Learn about the common Appsody CLI commands that you'll use to develop applications
-:guide-author: Kabanero
-:page-tags: ['appsody', 'CLI']
-:page-guide-category: basic
-:page-essential: true
-:page-essential-order: 1
-:page-permalink: /guides/use-appsody-cli/
-:imagesdir: /resources
-= Developing with the Appsody CLI
 
 [.hidden]
 NOTE: This repository contains the guide documentation source. To view
 the guide in published form, view it on the https://kabanero.io/guides/ website.
 
-Learn about the common Appsody CLI commands that you'll use to develop applications in the context of Kabanero and Kabanero CollectionHub.
+Learn about the common Appsody CLI commands that you'll use to develop applications in the context of Kabanero and Kabanero Collection Hub.
 
 // =================================================================================================
 // What you'll learn
@@ -41,7 +42,8 @@ Learn about the common Appsody CLI commands that you'll use to develop applicati
 
 You will learn how to use the Appsody Command Line Interface (CLI) to  configure your local
 development environment to access a Kabanero Collection. You will then learn how to use the CLI
-to create, run, test, and deploy an application built from a Kabanero Collection.
+to create, run, test, and debug an application built from a Kabanero Collection. Finally, you
+will learn how to build a deployment image that is ready to run in a Kubernetes or Knative environment.
 
 // =================================================================================================
 // Prerequisites
@@ -58,13 +60,17 @@ to create, run, test, and deploy an application built from a Kabanero Collection
 
 == Discovering Appsody repositories and stacks
 
-Appsody is an intergal component of Kabanero, its designed to enable applications to be built and tested inside a docker container, which then can be deployed by Kabanero into a target host environment.  
+Kabanero contains Appsody, which is designed to enable applications to be built and tested inside a Docker container. When built,
+the Docker container can be deployed by Kabanero into a target host environment.
 
 **CLI command:** `appsody repo list`
 
-When you install Appsody, the default configuration references a public repository `appsodyhub`, in which you can see the available Appsody stacks. You can use the content in the public repository, but those stacks are not integrated with Kabanero. In order to use Appsody with Kabanero you need to add your Kabanero `collectionHub` to Appsody to be used. This
-repository might be one that you create, based on your own requirements. Alternatively, the repository might be a
-preconfigured Kabanero Collection that someone in your organisation, such as an enterprise architect, has created for you. In either case the collectionHub must be active in the Kabanero instance that you wish to deploy your application on,  and it must be added to Appsody for your application creation.
+When you install Appsody, the default configuration references a public repository `appsodyhub`, in which you can see the available Appsody stacks.
+You can use the content in the public repository, but those stacks are not integrated with Kabanero. In order to use Appsody with Kabanero you need to
+configure Appsody to use your Kabanero Collection Hub. This repository might be one that you create, based on your own requirements. Alternatively,
+the repository might be a preconfigured Kabanero Collection that someone in your organisation, such as an enterprise architect, has created for you.
+In either case the Collection Hub must be active in the Kabanero instance on which you wish to deploy your application, and it must be added to Appsody
+before you create your application.
 
 To see the list of configured Appsody repositories, run the `appsody repo list` command. The asterisk shown in the
 output indicates the default repository.
@@ -76,18 +82,24 @@ NAME            URL
 experimental    https://github.com/appsody/stacks/releases/latest/download/experimental-index.yaml
 ----
 
-=== Adding a Kabanero collection hub
+=== Adding a Kabanero Collection Hub
 
 **CLI command:** `appsody repo add <repo-name> <URL>`
 
-As a developer your enterprise architect might provide you with the URL of a collection hub that your organisation
-has defined for developers to use. A collection hub is defined by an `index.yaml` file, which lists all the collections
+As a developer your enterprise architect might provide you with the URL of a Collection Hub that your organisation
+has defined for developers to use. A Collection Hub is defined by an `index.yaml` file, which lists all the collections
 that are available.
 
-To add a collection hub, use the `appsody repo add <repo-name> <URL>` command, supplying a name for the
-repository and the URL for the collection hub. The URL must point to the collection hub's `index.yaml` file.
+To add a Collection Hub, use the `appsody repo add <repo-name> <URL>` command, supplying a name for the
+repository and the URL for the Collection Hub. The URL must point to the Collection Hub's `index.yaml` file.
 
-Run the following command to add the latest public Kabanero Collections repository (it is recommended that the installer of the Kabanero runtime, make a copy of the collection hub and provide that to you, so that you are not suprised when the public collection hub changes)
+In this example, you will add the latest *public* Kabanero Collection Hub repository instead of a clone of the Kabanero
+Collection Hub repository that might be customised for your organisation.
+
+NOTE: The *public* Kabanero Collection Hub is updated on a regular basis. By making a copy of the public hub you
+avoid adopting unplanned changes.
+
+Run the following command:
 
 ```
 appsody repo add kabanero https://github.com/kabanero-io/collections/releases/latest/download/kabanero-index.yaml
@@ -110,7 +122,7 @@ kabanero      https://github.com/kabanero-io/collections/releases/latest/downloa
 
 You can change the default repository by using the `appsody repo set-default <repo-name>` command.
 
-Set the `kabanero` collection hubb as your default repository by using the following command:
+Set the `kabanero` Collection Hub as your default repository by running the following command:
 
 `appsody repo set-default kabanero`
 
@@ -150,15 +162,15 @@ kabanero      nodejs-express           0.2.5      *simple, skaffold   Express we
 kabanero      nodejs-loopback          0.1.4      *scaffold           LoopBack 4 API Framework for Node.js
 ----
 
-In the output you can see multiple stacks (IDs) in the `kabanero` collection hub. Each collection includes a version number,
-one or more templates (the asterisk (*****) indicates the default template), and a description.
+In the output you can see multiple collections (IDs) in the `kabanero` Collection Hub. Each collection includes a version number,
+one or more templates (an asterisk (*) indicates the default template), and a description.
 
 // =================================================================================================
-// Creating an Appsody application
+// Creating an application
 // =================================================================================================
 
 
-== Creating an Appsody/Kabanero application
+== Creating an application
 
 **CLI command:** `appsody init <repo-name>/<stack> <template>`
 
@@ -188,20 +200,20 @@ Successfully initialized Appsody project
 ---
 
 // =================================================================================================
-// Running an Appsody application
+// Running an application
 // =================================================================================================
 
-== Running an Appsody application
+== Running an application
 
 **CLI command:** `appsody run`
 
-This command runs an Appsody project in a docker container, where the container is linked to the project
+This command runs an Appsody project in a Docker container, where the container is linked to the project
 source code on the local system. In the previous step, you initialized the `nodejs-express` collection, which created
 a project directory that contains a sample `app.js` application. Run the application now by typing the `appsody run` command.
 
 Navigate to `http://localhost:3000` to see the output.
 
-**Note:** The URL can be different, depending on the collection, so consult the collection's documentation.
+NOTE: The URL can be different, depending on the collection, so consult the collection's documentation.
 
 Now try editing `app.js` so that it outputs something other than "Hello from Appsody!". When you save the file,
 Appsody picks up the change and automatically updates the container. Refresh `http://localhost:3000` to see the new message.
@@ -215,7 +227,7 @@ Appsody picks up the change and automatically updates the container. Refresh `ht
 
 **CLI command:** `appsody ps`
 
-To list all the stack-based containers that are running in your local Docker environment, use the `appsody ps` command.
+To list all the collection-based containers that are running in your local Docker environment, use the `appsody ps` command.
 The output provides information about the container ID, name, image, and the status of each container.
 
 Run the `appsody ps` command to see output that is similar to the following example:
@@ -240,3 +252,85 @@ stops the container that is running in your current working directory.
 
 If you have more than one development project open, use the `appsody stop --name <container-name>` to stop a specific container.
 Use the `appsody ps` command to find the name of the container you want to stop.
+
+// =================================================================================================
+// Testing your application
+// =================================================================================================
+
+== Testing your application
+
+**CLI command:** `appsody test`
+
+The `appsody test` command runs the test suite for your application in the Appsody development container. Each Kabanero collection provides
+a set of generic tests, which verify that the capabilities provided by the collection are working as expected. Typically, these tests check that
+the endpoints that are created, such as `/metrics` and `/health`, are available. In addition, you can define further tests for your application in
+your project `/test` folder.
+
+In earlier sections of this guide you created a Kabanero `nodejs-express` project with the default (`simple`) template, which provides a
+sample test as a starting point. Take a look at the sample test in the `my-project/test/test.js` file. You can update this file
+to suit your test requirements.
+
+Now try running the `appsody test` command for your project. The results from the test suite are included in the output.
+
+The testing uses constructs that are familiar to the programming language or framework on which the collection is based. You can add your own tests or
+switch to your preferred testing framework. Node.js collections use the https://mochajs.org/[Mocha] test framework as default. If you want to use a different
+test framework, update the `npm test` command in your project `package.json` file.
+
+To stop the container running the tests, you can quit by pressing Ctrl-C or running `appsody stop` in the terminal.
+
+// =================================================================================================
+// Debugging your application
+// =================================================================================================
+
+== Debugging your application
+
+**CLI command:** `appsody debug`
+
+The `appsody debug` command starts the Appsody development container with a debugger enabled. Typically, your IDE can connect to the debug port used
+by a Kabanero Collection. You can then set breakpoints and step through your code as it runs in the container.
+
+Run the `appsody debug` command. The output shows the exposed debug port. For the Kabanero `nodejs-express` collection, the debug port is 9229.
+
+NOTE: The debug port varies, depending on your Kabanero Collection, so check the documentation.
+
+To stop the container running in debug mode, you can quit by pressing Ctrl-C or running `appsody stop` in the terminal.
+
+// =================================================================================================
+// Building your application for deployment
+// =================================================================================================
+
+== Building your application for deployment
+
+**CLI command:** `appsody build`
+
+The `appsody build` command generates a Docker image for deployment. This Docker image differs slightly from the development Docker image that is generated by the
+Appsody CLI for running, testing, and debugging your application.
+
+The `appsody build` command completes the following two actions:
+
+1. Extracts your code and other artifacts, including a new `Dockerfile`, which are required to build the deployment image from the development image.
+These files are saved to the `~/.appsody/extract` directory.
+2. Runs a Docker build against the `Dockerfile` that was extracted in the previous step to produce a deployment image in your local Docker registry.
+If you want to give your Docker image a name, specify the -t <tag> parameter, for example `appsody build -t my-own-project`. If you run `appsody build` with
+no parameters, the image is given the same name as your project.
+
+Now create a deployment Docker image called *my-first-kabanero-app* for your application by running the following command:
+
+`appsody build -t my-first-kabanero-app`
+
+NOTE: If your project name includes uppercase characters, these are converted to lowercase characters in the image name because Docker does not accept uppercase
+characters in image tags. Also, if your project directory includes underscore characters, these are converted to dashes (-), because certain areas of Kubernetes
+are not tolerant of underscore characters.
+
+When Appsody finishes the build, check that your image is available by running the `docker images` command. You should see your image at the top of the list,
+in a similar format to the following output:
+
+
+[source,bash]
+---
+REPOSITORY                                                                TAG                           IMAGE ID            CREATED             SIZE
+my-first-kabanero-app                                                     latest                        1a957433be51        4 seconds ago       945MB
+...
+---
+
+Your deployment Docker image can now be used to run your containerized application in a Kubernetes or Knative environment.
