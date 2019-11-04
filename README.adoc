@@ -9,8 +9,9 @@ permalink: /guides/use-appsody-cli/
 :page-description: Learn about the common Appsody CLI commands that you'll use to develop applications
 :page-tags: ['Appsody', 'CLI']
 :page-guide-category: basic
-= Developing microservice applcations with the Appsody CLI
+= Developing microservice applications with the Appsody CLI
 
+//
 //	Copyright 2019 IBM Corporation and others.
 //
 //	Licensed under the Apache License, Version 2.0 (the "License");
