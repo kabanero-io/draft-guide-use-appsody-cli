@@ -9,7 +9,7 @@ permalink: /guides/use-appsody-cli/
 :page-description: Learn about the common Appsody CLI commands that you'll use to develop applications
 :page-tags: ['Appsody', 'CLI']
 :page-guide-category: basic
-= Developing microservice applcations with the Appsody CLI
+= Developing microservice applications with the Appsody CLI
 
 //	Copyright 2019 IBM Corporation and others.
 //
@@ -48,7 +48,7 @@ will learn how to build a deployment image that is ready to run in a Kubernetes 
 // Prerequisites
 // =================================================================================================
 
-== Prerequisities
+== Prerequisites
 
 . link:https://docs.docker.com/install/[Docker] must be installed.
 . link:https://appsody.dev/docs/getting-started/installation[Appsody] must be installed.
